@@ -1,0 +1,228 @@
+--Labb 2
+
+--Kopierade tabeller
+
+CREATE TABLE kund(
+username VARCHAR2(8) PRIMARY KEY,
+passwd VARCHAR2(8) NOT NULL,
+fnamn VARCHAR2(20) NOT NULL,
+enamn VARCHAR2(20) NOT NULL,
+yrke VARCHAR2(20),
+regdatum DATE NOT NULL,
+årslön NUMBER(7));
+
+INSERT INTO kund(username,passwd,fnamn,enamn,yrke,regdatum,årslön)
+VALUES('MrBig','MBisKING','Roger','nyberg','Officer',TO_DATE('1998-NOV-29','YYYY-MON-DD'),317000);
+INSERT INTO kund(username,passwd,fnamn,enamn,yrke,regdatum,årslön)
+VALUES('MEZcal','P33kssa','maria','Nyberg','psykolog',TO_DATE('1999-08-29','YYYY-MM-DD'),435000);
+INSERT INTO kund(username,passwd,fnamn,enamn,yrke,regdatum,årslön)
+VALUES('KLÖven','bintje','Tomas','kvist','Potatisbonde',TO_DATE('2000-02-28','YYYY-MM-DD'),198000);
+INSERT INTO kund(username,passwd,fnamn,enamn,yrke,regdatum,årslön)
+VALUES('OlleBull','Bullas','hans','Lindqvist',NULL,TO_DATE('2002-05-05','YYYY-MM-DD'),116000);
+INSERT INTO kund(username,passwd,fnamn,enamn,yrke,regdatum,årslön)
+VALUES('MrMDI','MDIisit','Hans','Rosenboll','adjunkt',TO_DATE('1997-01-15','YYYY-MM-DD'),307000);
+INSERT INTO kund(username,passwd,fnamn,enamn,yrke,regdatum,årslön)
+VALUES('King25','asdf1234','charlotte','Ortiz','tandläkare',TO_DATE('2003-12-10','YYYY-MM-DD'),586000);
+INSERT INTO kund(username,passwd,fnamn,enamn,yrke,regdatum,årslön)
+VALUES('h01hanro','T56xxL','Sven','Larsson',NULL,TO_DATE('2003-08-09','YYYY-MM-DD'),NULL);
+INSERT INTO kund(username,passwd,fnamn,enamn,yrke,regdatum,årslön)
+VALUES('XXXL','IRule','Margareta','ek','VD',TO_DATE('2001-06-29','YYYY-MM-DD'),942000);
+INSERT INTO kund(username,passwd,fnamn,enamn,yrke,regdatum,årslön)
+VALUES('Rolven','revolver','roger','nyberg',NULL,TO_DATE('1998-10-29','YYYY-MM-DD'),240000);
+INSERT INTO kund(username,passwd,fnamn,enamn,yrke,regdatum,årslön)
+VALUES('IceMan','Quantos','Maria','Nyberg','Ingenjör',TO_DATE('1998-02-14','YYYY-MM-DD'),412000);
+COMMIT;
+
+--Uppgift 1
+--Sortera oavsett stora/små bokstäver
+select * 
+from kund
+order by upper(enamn) asc;
+
+--Uppgfit 2
+select * 
+from kund
+order by upper(enamn) desc;
+
+--Uppgift 3
+--Räknar ut antal rader i tabellen
+select count(*) Antal_Kunder --Alias efter 
+from kund;
+
+--Uppgfit 4
+select count(*) Antal_Kunder
+from kund
+where årslön > 300000;
+
+--Uppgift 5
+select count(*) Antal_Kunder
+from kund
+where årslön < 300000;
+
+select count(*) Antal_Kunder
+from kund
+--NVL inkluderar null 0 indikerar vad nullvärdet ska vara.
+where nvl(årslön,0) < 300000;
+
+--Uppgift 6
+--Räknar ut medellönen
+select avg(årslön) Medellön
+from kund;
+
+--Med NULL
+select avg(nvl(årslön,0)) Medellön
+from kund;
+--Tar bort decimaler. 0 indikerar hur många decimaler som visas
+select round(avg(årslön),0) Medellön
+from kund;
+
+--Uppgift 7
+select username,fnamn,enamn,årslön
+from kund
+where årslön < 355300;
+--ERROR hårdkodat
+
+select username,fnamn,enamn,nvl(årslön,0) Årslön
+from kund
+where nvl(årslön,0) < (select avg(nvl(årslön,0))
+                from kund);
+				
+--Uppgift 8
+select upper(fnamn) fnamn,upper(enamn) enamn
+from kund
+where lower (enamn) like '%s%'; 
+
+--uppgift 9
+select fnamn, enamn, yrke
+from kund
+where lower(fnamn) like '%s';
+
+select fnamn, enamn, nvl(yrke,'arbetsfri') Yrke
+from kund
+where lower(fnamn) like '%s';
+
+
+select lower(fnamn) fnamn, lower(enamn) enamn, nvl(yrke,'arbetsfri') yrke
+from kund
+where lower(fnamn) like '%s';
+
+--Uppgift 10
+select yrke, count (username) --pk
+from kund
+group by yrke;
+
+--steg 1
+select initcap(yrke), count (username)
+from kund
+group by initcap(yrke); --Initcap stor första bokstav
+
+--steg 2
+select initcap(nvl(yrke,'arbetsfri')) Yrke, count (username) Antal
+from kund
+group by initcap(nvl(yrke,'arbetsfri'));
+
+--steg 3
+select initcap(nvl(yrke,'arbetsfri')) Yrke, count (username) Antal
+from kund
+group by initcap(nvl(yrke,'arbetsfri'))
+order by yrke asc;
+
+--Uppgift 11
+select initcap(fnamn) ||' '|| initcap(enamn) Kundnamn
+from kund;
+
+--Uppgift 12
+select count (username) Användare
+from kund
+where username = 'King25'
+and passwd = 'asdf1234';
+
+--Uppgift 13
+select count (username) Användare
+from kund
+where username = 'KING25'
+and passwd = 'ASDF1234';
+--funkar ej finns ingen användare med stora/små
+
+--Uppgift 14
+select username Användarnamn, passwd Lösenord
+from kund
+where to_char(regdatum, 'YYYY') < '2000';
+
+select username Användarnamn, passwd Lösenord, to_char(regdatum, 'YYYY-MM-DD') Regdatum 
+from kund
+where to_char(regdatum, 'YYYY') < '2000';
+
+--Uppgift 15
+select username, passwd
+from kund 
+where to_char(regdatum,'YYYY-MM-DD') between '2001-01-01' and '2003-10-01';
+
+--Uppgift 16
+select username, passwd, fnamn, enamn
+from kund
+where upper(enamn) = 'NYBERG' or upper(enamn) = 'KVIST'
+and upper(fnamn) <> 'ROGER';
+--FELAKTIGT
+
+--RÄTTA
+select username, passwd, fnamn, enamn
+from kund
+where (upper(enamn) = 'NYBERG' or upper(enamn) = 'KVIST')
+and upper(fnamn) <> 'ROGER';
+
+
+
+select username, passwd, fnamn, enamn
+from kund
+where upper(enamn) in('NYBERG','KVIST')
+and upper(fnamn) not in('ROGER');
+--Bästa lösningen mindre kod lättare att läsa
+
+
+--Uppgift 17
+select fnamn Förnamn, enamn Efternamn, årslön
+from kund
+where årslön = (select max(årslön)
+                from kund);
+
+
+--Plockar fram max årslön
+select max(årslön)
+from kund;
+
+--Uppgfit 18
+select fnamn Förnamn, enamn Efternamn, årslön
+from kund
+where årslön = (select min(årslön)
+                from kund);
+
+
+--Uppgift 19
+select fnamn,enamn
+from kund
+where yrke is null;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

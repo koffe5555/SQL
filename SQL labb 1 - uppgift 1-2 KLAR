@@ -1,0 +1,182 @@
+-- Labb 1
+
+-- Uppgift 1
+create sequence myseq
+increment by 1
+start with 1;
+--Exekvera för att se om sekvensen fungerar ökar med 1 för vajre "run"
+select myseq.nextval
+from dual;
+
+--Upggfit 2
+--Skapa alltid tabellerna med PK först
+create table KUND(
+persnr varchar2(13),
+username varchar2(16) not null,
+passwd varchar2(16) not null,
+fnamn varchar2(50) not null,
+enamn varchar2(50) not null,
+kredittyp varchar2(10) not null,
+telenr varchar2(16));
+
+--Alter table förändra
+alter table KUND
+add constraint KUND_persnr_pk primary key(persnr);
+
+alter table KUND
+add constraint KUND_kredittyp_ck CHECK(kredittyp in('hög','medel','låg'));
+
+--Kundorder
+create table KUNDORDER(
+ordnr number(12),
+persnr varchar2(13) not null,
+datum date default sysdate not null);
+
+alter table KUNDORDER 
+add constraint kundorder_ordnr_pk primary key(ordnr);
+
+alter table KUNDORDER
+add constraint kundorder_persnr_fk foreign key(persnr) references KUND(persnr);
+
+alter table KUND
+add constraint kund_username_uq unique(username);
+
+--Tabell varugrupp
+create table VARUGRUPP(
+vgnr varchar2(12),
+vgnamn varchar2(40) not null);
+
+alter table VARUGRUPP
+add constraint varugrupp_vgnr_pk primary key(vgnr);
+
+--Tabell Artikel
+create table ARTIKEL(
+artnr varchar2(25),
+vgnr varchar2(12) not null,
+artnamn varchar2(40) not null,
+pris number(8) not null);
+
+alter table ARTIKEL
+add constraint artikel_artnr_pk primary key(artnr);
+
+alter table ARTIKEL
+add constraint artikel_vgnr_fk foreign key(vgnr) references VARUGRUPP(vgnr);
+--Ändra namn i constraint
+alter table 
+rename constraint SKRIV NAMNET to NYA NAMNET
+--Tabell kundvagn
+create table KUNDVAGN(
+radnr number(12),
+ordnr number(12) not null,
+artnr varchar2(25) not null,
+antal number(6) not null);
+
+alter table KUNDVAGN
+add constraint kundvagn_radnr_pk primary key(radnr);
+
+alter table KUNDVAGN
+add constraint kundorder_ordnr_fk foreign key(ordnr) references KUNDORDER(ordnr)
+add constraint artikel_artnr_fk foreign key(artnr) references ARTIKEL(artnr);
+
+--Tabell Artikelbild
+create table ARTIKELBLAD(
+bildnr varchar2(12),
+artnr varchar2(25) not null,
+filtyp varchar2(6) not null,
+width number(6) not null,
+height number(6) not null,
+path varchar2(100) not null);
+
+alter table ARTIKELBLAD
+add constraint artikelblad_bildnr_pk primary key(bildnr)
+add constraint artikelblad_artnr_fk foreign key(artnr) references ARTIKEL(artnr);
+
+alter table ARTIKELBLAD
+add constraint artikelblad_filtyp_ck check(filtyp in('gif', 'jpg'));
+
+
+
+--Uppgift 3
+
+insert into KUND(persnr, username, passwd,fnamn,enamn,kredittyp,telenr)
+values ('19960424-0101','Yoko','death','Kripa','Elit','hög','+46702602007');
+
+
+insert into KUND(persnr, username, passwd,fnamn,enamn,kredittyp,telenr)
+values ('19960102-0101','Cool','xd','hejdu','nejdu','låg','+46702204007');
+
+--Select *
+--from KUND;
+--visar tabellen
+
+---Uppgift 4
+
+insert into VARUGRUPP(vgnr,vgnamn)
+values ('11AA-BB','Sport');
+
+
+--Uppgift 5
+
+insert into ARTIKEL(artnr,vgnr,artnamn,pris)
+values ('321.3.43','11AA-BB','Hokcey Klubba',1999); 
+
+
+--Uppgift 6
+insert into KUNDORDER(ordnr,persnr)
+values(myseq.nextval,'1996042441-0101');
+--Ändra hur formatet på datum ska visas
+select ordnr,persnr,to_char(datum,'YYYY-MM-DD:HH24:MI') datum
+from KUNDORDER;
+
+--Ordn = 4
+insert into KUNDVAGN(radnr,ordnr,artnr,antal)
+values(myseq.nextval, 4, '321.3.43',1);
+
+select *
+from KUNDVAGN;
+
+--Uppgift 7
+update ARTIKEL
+set pris = pris + (pris * 0.23);
+
+--Uppgift 8
+update KUND
+set telnr = '070667732'
+where persnr = '19960102-0101';
+
+--Uppgift 9
+delete 
+from KUNDORDER;
+
+--Går inte, blir brott mot referencesintegriteten. 
+
+--Uppgfit 10
+--Tabort dem i omvänd ordning som de relaterar till varandra.
+drop table KUNDVAGN;
+drop table KUNDORDER;
+drop table KUND;
+drop table ARTIKELBLAD;
+drop table ARTIKEL;
+drop table VARUGRUPP;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
